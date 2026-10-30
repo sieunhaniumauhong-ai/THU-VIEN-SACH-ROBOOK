@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Robook | Thư viện kỹ năng số</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Lexend:wght@400;600;800&family=Patrick+Hand&display=swap&subset=vietnamese" rel="stylesheet">
+<style>
+:root{
+  --paper:#FBFCFF; --grid:#DCE8F6; --grid2:#C3D6EE;
+  --tim:#5B2A86; --tim-dark:#3B1659; --tim-soft:#F1E8FA; --le:#E5484D; --hl:#FFE45C;
+  --den:#17141F; --xanh:#1F9D6B; --text:#221C2E; --muted:#6B6380;
+  --s0:#2F6FDE; --s1:#E0791B; --s2:#1F9D6B; --wood:#8A5A3B; --wood2:#6B4329;
+  --sky:#8FD3FF; --grass:#5CC46A; --dirt:#9B6B43;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  font-family:'Lexend',system-ui,sans-serif;color:var(--text);background:var(--paper);
+  background-image:linear-gradient(var(--grid2) 1px,transparent 1px),linear-gradient(90deg,var(--grid2) 1px,transparent 1px),
+    linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:96px 96px,96px 96px,24px 24px,24px 24px;min-height:100vh;
+}
+button,input{font:inherit}
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+.hidden{display:none!important}
+
+/* ---------- top bar ---------- */
+.top{position:sticky;top:0;z-index:30;background:rgba(251,252,255,.96);border-bottom:2px solid var(--grid2)}
+.top .wrap{display:flex;align-items:center;gap:18px;padding-top:10px;padding-bottom:10px;flex-wrap:wrap}
+.logo{font-weight:800;font-size:26px;color:var(--tim);letter-spacing:-.5px;background:none;border:0;padding:0;cursor:pointer}
+.logo span{color:var(--den)}
+.tabs{display:flex;gap:4px;flex-wrap:wrap}
+.tab{background:none;border:0;padding:8px 12px;border-radius:10px;font-size:15px;font-weight:600;color:var(--muted);cursor:pointer}
+.tab:hover{color:var(--tim);background:var(--tim-soft)}
+.tab.on{color:#fff;background:var(--tim)}
+.tab:focus-visible,.btn:focus-visible,.choice:focus-visible,.spine:focus-visible,.card-btn:focus-visible{outline:3px solid var(--hl);outline-offset:3px}
+.me{margin-left:auto;display:flex;align-items:center;gap:10px}
+.lvl-chip{width:38px;height:38px;border-radius:8px;background:var(--tim);color:#fff;display:grid;place-items:center;font-weight:800;box-shadow:inset -4px -4px 0 rgba(0,0,0,.25)}
+.xpbox{min-width:150px}
+.xpbox b{display:block;font-size:14px;color:var(--tim)}
+.xpbar{height:9px;border:2px solid var(--tim);border-radius:99px;background:#fff;overflow:hidden;margin:3px 0 1px}
+.xpbar i{display:block;height:100%;background:var(--tim);width:0;transition:width .6s}
+.xpbox small{font-size:12px;color:var(--muted)}
+
+/* ---------- shared ---------- */
+.btn{font-weight:800;font-size:18px;padding:12px 22px;border-radius:12px;cursor:pointer;border:none;background:var(--tim);color:#fff;box-shadow:0 5px 0 var(--tim-dark);transition:transform .1s,box-shadow .1s}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--tim-dark)}
+.btn.ghost{background:#fff;color:var(--tim);border:2.5px solid var(--tim);box-shadow:0 4px 0 var(--tim)}
+.btn.green{background:var(--xanh);box-shadow:0 5px 0 #136748}
+.btn.yellow{background:var(--hl);color:var(--den);box-shadow:0 5px 0 #C7A800}
+.btn.small{font-size:15px;padding:9px 14px}
+.btn[disabled]{opacity:.4;cursor:not-allowed;transform:none}
+.sec-title{font-size:28px;font-weight:800;color:var(--tim);margin:40px 0 6px;letter-spacing:-.5px}
+.sec-sub{font-size:16px;color:var(--muted);margin:0 0 16px;line-height:1.5;max-width:60ch}
+.panel{background:#fff;border:2.5px solid var(--den);border-radius:16px;padding:18px 20px;box-shadow:6px 6px 0 var(--grid2)}
+.pill{display:inline-block;font-size:14px;font-weight:600;padding:5px 11px;border-radius:99px;border:2px solid var(--den);background:var(--paper)}
+.pill.y{background:var(--hl)}
+.pill.g{background:#DDF5EA;border-color:var(--xanh);color:#0F6B47}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--den);color:#fff;padding:12px 18px;border-radius:12px;font-size:16px;z-index:80;max-width:92vw;display:none}
+
+/* ---------- avatar + chat ---------- */
+.av{display:block}
+.chat{display:flex;flex-direction:column;gap:10px;margin:8px 0 14px}
+.msg{max-width:88%;}
+.msg .who{font-size:13px;font-weight:600;color:var(--muted);margin:0 0 3px 4px}
+.msg .b{background:#fff;border:2px solid var(--den);border-radius:4px 16px 16px 16px;padding:10px 14px;font-size:18px;line-height:1.45}
+.msg.me{align-self:flex-end}
+.msg.me .who{text-align:right;margin-right:4px}
+.msg.me .b{background:var(--tim);color:#fff;border-color:var(--tim);border-radius:16px 4px 16px 16px}
+.msg.sys .b{background:var(--hl);border-style:dashed;border-radius:12px;font-size:16px}
+.msg.warn .b{background:#FFE9E7;border-color:var(--le)}
+.msg.kind .b{background:#E6F7EF;border-color:var(--xanh)}
+
+/* ---------- home ---------- */
+.hero{display:grid;grid-template-columns:1.25fr .9fr;gap:30px;align-items:center;padding:36px 0 6px}
+.hero h1{font-size:54px;line-height:1.02;letter-spacing:-2px;font-weight:800;margin:0 0 14px;color:var(--den)}
+.hero h1 em{font-style:normal;color:var(--tim);display:block}
+.hero p{font-size:19px;line-height:1.55;margin:0 0 18px;max-width:46ch}
+.hero .cta{display:flex;gap:12px;flex-wrap:wrap}
+.promise{font-family:'Patrick Hand',cursive;font-size:25px;line-height:1.35;color:var(--tim);margin-top:18px;max-width:30ch}
+.player .row{display:flex;gap:14px;align-items:center;margin-bottom:12px}
+.player h3{margin:0;font-size:20px}
+.player .lv{font-size:14px;color:var(--muted)}
+.badges{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:6px}
+.badge{text-align:center;font-size:12px;line-height:1.3;color:var(--muted)}
+.badge svg{width:52px;height:52px;display:block;margin:0 auto 4px;filter:grayscale(1);opacity:.35}
+.badge.on{color:var(--den);font-weight:600}
+.badge.on svg{filter:none;opacity:1}
+.next-step{margin-top:14px;padding-top:12px;border-top:2px dashed var(--grid2);font-size:15px;line-height:1.5}
+.next-step b{color:var(--tim)}
+
+.shelf{margin-bottom:30px}
+.shelf-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+.shelf-head h3{margin:0;font-size:22px}
+.shelf-head span{font-size:15px;color:var(--muted)}
+.books{display:flex;align-items:flex-end;gap:12px;padding:0 16px;min-height:236px}
+.board{height:16px;background:var(--wood);border-radius:3px;box-shadow:0 6px 0 var(--wood2)}
+.spine{--c:var(--s0);width:70px;border:2.5px solid var(--den);border-bottom:0;border-radius:6px 6px 0 0;background:var(--c);cursor:pointer;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:12px 0 10px;color:#fff;transition:transform .18s;box-shadow:inset -8px 0 0 rgba(0,0,0,.18)}
+.spine:hover{transform:translateY(-10px)}
+.spine .t{writing-mode:vertical-rl;transform:rotate(180deg);font-weight:800;font-size:15px;line-height:1.1;flex:1;display:flex;align-items:center}
+.spine .band{position:absolute;left:0;right:0;top:30px;height:8px;background:rgba(255,255,255,.55)}
+.spine .st{width:26px;height:26px;border-radius:50%;background:#fff;color:var(--den);display:grid;place-items:center;font-size:13px;font-weight:800;border:2px solid var(--den);margin-top:8px}
+.spine.soon{background:repeating-linear-gradient(135deg,var(--c) 0 10px,color-mix(in srgb,var(--c) 70%,#000) 10px 20px);opacity:.5}
+.spine.soon:hover{transform:translateY(-4px)}
+.spine.done{box-shadow:inset -8px 0 0 rgba(0,0,0,.18),0 0 0 4px var(--hl),0 0 26px 6px rgba(255,228,92,.9)}
+.spine.done .st{background:var(--hl)}
+.spine.sel{transform:translateY(-14px)}
+.detail{margin:14px 0 4px}
+.detail h4{margin:0 0 6px;font-size:23px}
+.detail p{font-size:17px;line-height:1.5;margin:0 0 12px;max-width:60ch}
+.detail .meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.detail .acts{display:flex;gap:10px;flex-wrap:wrap}
+
+.side3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.card h3{margin:0 0 6px;font-size:20px}
+.card p{font-size:15px;line-height:1.5;margin:0 0 12px;color:#3B3449}
+.card .tagline{font-size:13px;font-weight:600;color:var(--le);margin-bottom:6px}
+.card-btn{background:none;border:0;padding:0;color:var(--tim);font-weight:800;font-size:15px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.lb{width:100%;border-collapse:collapse;font-size:15px}
+.lb td{padding:8px 4px;border-bottom:2px solid var(--grid)}
+.lb tr:last-child td{border-bottom:0}
+.lb td:first-child{width:28px;font-weight:800;color:var(--tim)}
+.lb td:last-child{text-align:right;font-weight:600}
+.lb tr.mine{background:#FFF7C9}
+.fine{font-size:12px;color:var(--muted);margin-top:6px}
+.trick-more{margin-top:8px;font-size:15px;line-height:1.5}
+.trick-more li{margin-bottom:6px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.step .n{width:38px;height:38px;border-radius:8px;background:var(--tim);color:#fff;display:grid;place-items:center;font-weight:800;margin-bottom:8px;box-shadow:inset -4px -4px 0 rgba(0,0,0,.25)}
+.step h4{margin:0 0 4px;font-size:18px}
+.step p{margin:0;font-size:15px;line-height:1.5;color:#3B3449}
+footer{padding:46px 0 40px;color:var(--muted);font-size:14px;line-height:1.6}
+
+/* ---------- reader ---------- */
+.rd{max-width:680px;margin:0 auto;position:relative;padding:26px 22px 130px 76px;min-height:80vh}
+.rd::before{content:"";position:absolute;left:54px;top:0;bottom:0;width:2px;background:var(--le);opacity:.75}
+.pgno{position:absolute;left:12px;top:28px;width:32px;text-align:right;font-family:'Patrick Hand';font-size:21px;color:var(--le)}
+.crumb{font-size:14px;color:var(--muted);margin-bottom:8px}
+.rd h2{font-size:34px;line-height:1.12;font-weight:800;color:var(--tim);margin:0 0 16px;letter-spacing:-.5px}
+.rd p{font-size:21px;line-height:1.6;margin:0 0 14px;max-width:32ch}
+.rd p.big{font-size:27px;font-weight:600;line-height:1.35}
+.rd p.small{font-size:17px;color:var(--muted);max-width:40ch}
+.art{display:flex;gap:16px;align-items:flex-end;margin:6px 0 18px}
+.art .chat{flex:1;margin:0}
+.think{font-family:'Patrick Hand',cursive;font-size:24px;line-height:1.35;color:var(--tim);background:#fff;border:2px solid var(--tim);border-radius:22px;padding:12px 16px;position:relative}
+.signs{list-style:none;padding:0;margin:0 0 12px}
+.signs li{display:flex;gap:14px;align-items:baseline;margin-bottom:12px;font-size:19px;line-height:1.4}
+.signs b{flex:0 0 104px;text-align:center;background:linear-gradient(transparent 28%,var(--hl) 28%,var(--hl) 90%,transparent 90%)}
+.rule{background:var(--tim);color:#fff;border-radius:14px;padding:16px 18px;font-size:19px;line-height:1.5;margin:6px 0 14px}
+.rule b{color:var(--hl)}
+.olist{counter-reset:k;list-style:none;padding:0;margin:0 0 12px}
+.olist li{counter-increment:k;display:flex;gap:12px;align-items:flex-start;font-size:19px;line-height:1.45;margin-bottom:12px}
+.olist li::before{content:counter(k);flex:0 0 32px;height:32px;border-radius:7px;background:var(--tim);color:#fff;display:grid;place-items:center;font-weight:800;font-size:16px}
+.cover{text-align:left}
+.cover .shelfname{display:inline-block;font-size:14px;font-weight:600;color:#fff;padding:5px 11px;border-radius:99px;margin-bottom:12px}
+.cover h2{font-size:44px}
+.qhead{font-weight:800;color:var(--le);font-size:15px;margin-bottom:8px}
+.choices{display:flex;flex-direction:column;gap:12px;margin:10px 0 14px}
+.choice{font-size:18px;text-align:left;line-height:1.4;padding:13px 16px;background:#fff;color:var(--text);border:2.5px solid var(--tim);border-radius:14px;cursor:pointer;box-shadow:0 4px 0 var(--tim)}
+.choice:active{transform:translateY(3px);box-shadow:0 1px 0 var(--tim)}
+.choice.right{background:#E3F6EE;border-color:var(--xanh);box-shadow:0 4px 0 var(--xanh)}
+.choice.wrong{background:#FDECEC;border-color:var(--le);box-shadow:0 4px 0 var(--le)}
+.choice.picked{background:var(--hl)}
+.choice[disabled]{cursor:default}
+.fb{font-size:18px;line-height:1.5;padding:12px 16px;border-radius:12px;background:#fff;border:2px solid var(--xanh);border-left-width:8px;margin:6px 0 12px}
+.fb.bad{border-color:var(--le)}
+.rd-nav{position:fixed;left:0;right:0;bottom:0;background:rgba(251,252,255,.97);border-top:2px solid var(--grid2);z-index:25}
+.rd-nav .in{max-width:680px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:12px}
+.rd-prog{flex:1;height:10px;border:2px solid var(--tim);border-radius:99px;overflow:hidden;background:#fff}
+.rd-prog i{display:block;height:100%;background:var(--tim);width:0;transition:width .3s}
+.page{animation:turn .3s ease-out}
+@keyframes turn{from{opacity:0;transform:translateX(16px)}}
+.reward{text-align:center}
+.reward p{margin-left:auto;margin-right:auto}
+.codebox{display:inline-flex;align-items:center;gap:12px;background:var(--den);color:#fff;border-radius:12px;padding:12px 16px;margin:4px 0 16px}
+.codebox code{font-family:'Lexend';font-weight:800;font-size:24px;letter-spacing:2px;color:var(--hl);white-space:nowrap}
+.codebox button{background:#fff;color:var(--den);border:0;border-radius:8px;padding:7px 12px;font-weight:800;cursor:pointer}
+.xpgain{display:inline-block;font-family:'Baloo 2','Lexend',sans-serif;font-weight:800;font-size:30px;color:var(--xanh);margin-bottom:6px}
+
+/* ---------- game ---------- */
+.game{background:var(--sky);min-height:calc(100vh - 62px);background-image:none}
+.gwrap{max-width:1040px;margin:0 auto;padding:22px 20px 40px}
+.ghead{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+.ghead h1{font-family:'Baloo 2','Lexend',sans-serif;font-weight:800;font-size:38px;line-height:1;margin:0;color:var(--den)}
+.ghead p{margin:0;font-size:15px;color:#1E3A52}
+.gpanel{background:#fff;border:3px solid var(--den);border-radius:6px;box-shadow:6px 6px 0 rgba(0,0,0,.25);padding:16px}
+.codein{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.codein input{border:3px solid var(--den);border-radius:6px;padding:10px 12px;font-size:18px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;width:220px}
+.levels{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px}
+.lvtile{background:#fff;border:3px solid var(--den);border-radius:6px;overflow:hidden;box-shadow:6px 6px 0 rgba(0,0,0,.25);display:flex;flex-direction:column}
+.lvtile .pic{height:120px;position:relative;background:var(--sky);border-bottom:3px solid var(--den);overflow:hidden}
+.lvtile .pic .ground{position:absolute;left:0;right:0;bottom:0;height:30px;background:var(--grass);border-top:3px solid var(--den);box-shadow:inset 0 -10px 0 var(--dirt)}
+.lvtile .body{padding:12px 14px;flex:1;display:flex;flex-direction:column;gap:8px}
+.lvtile h3{font-family:'Baloo 2','Lexend',sans-serif;font-weight:800;font-size:22px;margin:0;line-height:1.1}
+.lvtile p{margin:0;font-size:14px;line-height:1.45;color:#3B3449}
+.lvtile .foot{margin-top:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.lvtile.locked .pic{filter:grayscale(1) brightness(.85)}
+.lock-note{font-size:13px;color:var(--muted)}
+
+.stage{display:grid;grid-template-columns:1.1fr 1fr;gap:18px;align-items:start}
+.scene{position:relative;height:360px;background:var(--sky);border:3px solid var(--den);border-radius:6px;overflow:hidden;box-shadow:6px 6px 0 rgba(0,0,0,.25)}
+.scene .cloud{position:absolute;background:#fff;border:3px solid var(--den);height:26px}
+.scene .ground{position:absolute;left:0;right:0;bottom:0;height:78px;background:var(--grass);border-top:3px solid var(--den);background-image:linear-gradient(90deg,rgba(0,0,0,.08) 2px,transparent 2px);background-size:40px 100%;box-shadow:inset 0 -40px 0 var(--dirt)}
+.scene .place{position:absolute;left:12px;top:10px;background:var(--den);color:#fff;font-family:'Baloo 2','Lexend',sans-serif;font-weight:800;font-size:16px;padding:4px 10px;border-radius:4px}
+.scene .actor{position:absolute;bottom:70px;text-align:center}
+.scene .actor .nm{display:inline-block;background:rgba(23,20,31,.85);color:#fff;font-size:12px;font-weight:600;padding:2px 7px;border-radius:4px;margin-bottom:4px;white-space:nowrap}
+.bubble{position:absolute;top:52px;max-width:58%;background:#fff;border:3px solid var(--den);border-radius:6px;padding:10px 12px;font-size:16px;line-height:1.4;font-weight:600}
+.bubble::after{content:"";position:absolute;bottom:-14px;width:18px;height:14px;background:#fff;border:3px solid var(--den);border-top:0;clip-path:polygon(0 0,100% 0,50% 100%)}
+.bubble.r{right:16px}.bubble.r::after{right:40px}
+.scene .shake{animation:shake .4s}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.side{display:flex;flex-direction:column;gap:12px}
+.timer{display:flex;align-items:center;gap:10px;font-weight:800;font-size:15px}
+.tbar{flex:1;height:16px;border:3px solid var(--den);border-radius:4px;background:#fff;overflow:hidden}
+.tbar i{display:block;height:100%;background:var(--le);width:100%;transition:width 1s linear}
+.tbar.paused i{background:#9AA7B5}
+.glog{max-height:250px;overflow:auto;padding-right:4px}
+.glog .chat{margin:0}
+.glog .msg .b{font-size:16px}
+.gchoices .choice{border-color:var(--den);box-shadow:0 4px 0 var(--den);border-radius:6px;font-size:17px}
+.gchoices .choice:active{box-shadow:0 1px 0 var(--den)}
+.overlay{position:fixed;inset:0;background:rgba(10,14,25,.6);z-index:60;display:none;align-items:center;justify-content:center;padding:18px}
+.overlay.show{display:flex}
+.ov{background:#fff;border:3px solid var(--den);border-radius:8px;max-width:520px;width:100%;padding:22px;box-shadow:8px 8px 0 rgba(0,0,0,.3);max-height:90vh;overflow:auto}
+.ov h3{font-family:'Baloo 2','Lexend',sans-serif;font-weight:800;font-size:28px;margin:0 0 10px;line-height:1.1}
+.ov p{font-size:17px;line-height:1.5;margin:0 0 12px}
+.chain{list-style:none;padding:0;margin:0 0 14px}
+.chain li{font-size:16px;line-height:1.4;padding:9px 12px;margin-bottom:7px;background:var(--den);color:#fff;border-radius:6px;opacity:0;animation:in .4s forwards}
+.chain li:nth-child(2){animation-delay:.5s}.chain li:nth-child(3){animation-delay:1s}.chain li:nth-child(4){animation-delay:1.5s}
+@keyframes in{to{opacity:1}}
+.why{background:var(--hl);border-radius:6px;padding:10px 12px;font-size:16px;line-height:1.5;margin-bottom:14px}
+.pausering{width:130px;height:130px;margin:6px auto 10px;position:relative}
+.pausering svg{width:100%;height:100%;transform:rotate(-90deg)}
+.pausering span{position:absolute;inset:0;display:grid;place-items:center;font-family:'Baloo 2','Lexend',sans-serif;font-weight:800;font-size:50px;color:var(--tim)}
+.pq{text-align:center;font-weight:600;font-size:20px;color:var(--tim);min-height:58px}
+.win{text-align:center}
+.win svg.bigbadge{width:120px;margin:0 auto 8px;display:block}
+
+/* ---------- boss ---------- */
+.boss-chat .msg{cursor:pointer;max-width:100%}
+.boss-chat .msg .b{transition:background .2s}
+.boss-chat .msg.flagged .b{background:#FFE9E7;border-color:var(--le)}
+.boss-chat .msg.flagged .who::after{content:"  Đã đánh dấu giả";color:var(--le)}
+.boss-chat .msg.res-ok .b{box-shadow:0 0 0 3px var(--xanh)}
+.boss-chat .msg.res-bad .b{box-shadow:0 0 0 3px var(--le)}
+.boss-chat .note{font-size:14px;line-height:1.45;margin:4px 0 0 4px;color:#3B3449}
+.boss-hp{display:flex;align-items:center;gap:10px;margin:6px 0 12px}
+.boss-hp .tbar i{background:var(--le)}
+
+/* ---------- talk + parents ---------- */
+.narrow{max-width:760px;margin:0 auto;padding:30px 20px 60px}
+.narrow h1{font-size:40px;line-height:1.05;letter-spacing:-1px;margin:0 0 10px;color:var(--den)}
+.narrow .lead{font-size:18px;line-height:1.55;margin:0 0 20px;max-width:56ch}
+.safe-msg{font-family:'Patrick Hand',cursive;font-size:28px;color:var(--tim);margin:0 0 18px;line-height:1.3}
+.sitgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sit{text-align:left;background:#fff;border:2.5px solid var(--tim);border-radius:14px;padding:14px 16px;cursor:pointer;font-size:17px;line-height:1.4;box-shadow:0 4px 0 var(--tim)}
+.sit b{display:block;font-size:18px;margin-bottom:2px}
+.sit:hover{background:var(--tim-soft)}
+.sit:focus-visible{outline:3px solid var(--hl);outline-offset:3px}
+.talkstep{font-size:14px;font-weight:600;color:var(--le);margin-bottom:8px}
+.hotline{display:flex;gap:14px;align-items:center;background:var(--den);color:#fff;border-radius:14px;padding:16px 18px;margin:14px 0}
+.hotline .num{font-family:'Baloo 2','Lexend',sans-serif;font-weight:800;font-size:46px;color:var(--hl);line-height:1}
+.hotline p{margin:0;font-size:15px;line-height:1.5}
+.priv{font-size:14px;color:var(--muted);margin-top:14px}
+.rep{width:100%;border-collapse:collapse;background:#fff;border:2.5px solid var(--den);border-radius:12px;overflow:hidden}
+.rep th,.rep td{text-align:left;padding:12px;border-bottom:2px solid var(--grid);font-size:15px;line-height:1.5;vertical-align:top}
+.rep th{background:var(--tim-soft);font-size:14px}
+.rep tr:last-child td{border-bottom:0}
+.st{font-size:13px;font-weight:600;padding:3px 9px;border-radius:99px;background:#EEF0F4;white-space:nowrap;display:inline-block}
+.st.mid{background:var(--hl)}
+.st.ok{background:#DDF5EA;color:#0F6B47}
+.guide{counter-reset:g;list-style:none;padding:0;margin:0}
+.guide li{counter-increment:g;display:flex;gap:14px;margin-bottom:16px;font-size:16px;line-height:1.55}
+.guide li::before{content:counter(g);flex:0 0 34px;height:34px;border-radius:8px;background:var(--tim);color:#fff;display:grid;place-items:center;font-weight:800}
+.guide b{display:block;font-size:17px;color:var(--den)}
+.promise-list{list-style:none;padding:0;margin:0}
+.promise-list li{padding:10px 0 10px 30px;border-bottom:2px dashed var(--grid2);font-size:16px;line-height:1.5;position:relative}
+.promise-list li::before{content:"";position:absolute;left:4px;top:15px;width:14px;height:14px;border-radius:3px;background:var(--xanh)}
+.h2s{font-size:24px;color:var(--tim);margin:34px 0 10px}
+
+@media (max-width:860px){
+  .hero{grid-template-columns:1fr}
+  .side3,.steps,.levels{grid-template-columns:1fr}
+  .stage{grid-template-columns:1fr}
+  .hero h1{font-size:42px}
+}
+@media (max-width:560px){
+  .xpbox{display:none}
+  .top .wrap{gap:8px}
+  .tabs{order:3;width:100%;flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px}
+  .tab{white-space:nowrap;font-size:14px;padding:7px 10px}
+  .me{margin-left:auto}
+  .books{gap:8px;padding:0 4px;overflow-x:auto}
+  .spine{width:58px;flex:0 0 auto}
+  .rd{padding-left:56px;padding-right:16px}.rd::before{left:40px}.pgno{left:4px}
+  .rd p{font-size:19px}.rd h2{font-size:29px}.cover h2{font-size:36px}
+  .sitgrid{grid-template-columns:1fr}
+  .codebox code{font-size:19px;letter-spacing:1px}
+  .bubble{max-width:70%;font-size:14px}
+  .scene{height:320px}
+  .narrow h1{font-size:32px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.chain li{opacity:1}}
+</style>
+</head>
+<body>
+
+<header class="top"><div class="wrap">
+  <button class="logo" data-go="home">Ro<span>book</span></button>
+  <nav class="tabs" aria-label="Điều hướng">
+    <button class="tab" data-go="home">Thư viện</button>
+    <button class="tab" data-go="game">Đảo Khối</button>
+    <button class="tab" data-go="boss">Boss tuần</button>
+    <button class="tab" data-go="talk">Kể lại</button>
+    <button class="tab" data-go="parents">Phụ huynh</button>
+  </nav>
+  <div class="me">
+    <div class="xpbox"><b id="rankName">Độc Giả</b><div class="xpbar"><i id="xpBar"></i></div><small id="xpTxt">0 XP</small></div>
+    <div class="lvl-chip" id="lvlChip" title="Cấp độ">1</div>
+  </div>
+</div></header>
+
+<main id="app"></main>
+
+<div class="overlay" id="ov"><div class="ov" id="ovBody" role="dialog" aria-modal="true"></div></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+/* =========================================================
+   HELPERS
+   ========================================================= */
+const $=s=>document.querySelector(s);
+const app=$('#app');
+function toast(t){const el=$('#toast');el.textContent=t;el.style.display='block';clearTimeout(toast.h);toast.h=setTimeout(()=>el.style.display='none',2800)}
+function esc(s){return s}
+
+function av(o={}){
+  const c=Object.assign({skin:'#F6C9A0',shirt:'#5B2A86',pants:'#2E2A3A',hair:'#2B1D14',mood:'smile',size:70,hat:null},o);
+  const mouth={smile:'M15 15.5 Q20 19 25 15.5',sly:'M15 16.5 L25 14.5',worried:'M15 17.5 Q20 14 25 17.5',flat:'M15 16 L25 16'}[c.mood];
+  const brow=c.mood==='sly'?'<path d="M14 8.5 L18 10 M26 8.5 L22 10" stroke="#17141F" stroke-width="1.6"/>':'';
+  const hat=c.hat?`<rect x="8" y="0" width="24" height="4" fill="${c.hat}" stroke="#17141F" stroke-width="1.5"/><rect x="12" y="-4" width="16" height="5" fill="${c.hat}" stroke="#17141F" stroke-width="1.5"/>`:'';
+  return `<svg class="av" width="${c.size*0.67}" height="${c.size}" viewBox="0 -5 40 65" aria-hidden="true">
+   ${hat}
+   <rect x="10" y="1" width="20" height="19" fill="${c.skin}" stroke="#17141F" stroke-width="1.6"/>
+   <rect x="10" y="1" width="20" height="5" fill="${c.hair}"/>
+   ${brow}<rect x="14.5" y="10" width="3" height="3.4" fill="#17141F"/><rect x="22.5" y="10" width="3" height="3.4" fill="#17141F"/>
+   <path d="${mouth}" stroke="#17141F" stroke-width="1.6" fill="none"/>
+   <rect x="8" y="21" width="24" height="18" fill="${c.shirt}" stroke="#17141F" stroke-width="1.6"/>
+   <rect x="2" y="21" width="6" height="16" fill="${c.shirt}" stroke="#17141F" stroke-width="1.6"/><rect x="32" y="21" width="6" height="16" fill="${c.shirt}" stroke="#17141F" stroke-width="1.6"/>
+   <rect x="2" y="37" width="6" height="3" fill="${c.skin}" stroke="#17141F" stroke-width="1.2"/><rect x="32" y="37" width="6" height="3" fill="${c.skin}" stroke="#17141F" stroke-width="1.2"/>
+   <rect x="10" y="39" width="9.5" height="19" fill="${c.pants}" stroke="#17141F" stroke-width="1.6"/><rect x="20.5" y="39" width="9.5" height="19" fill="${c.pants}" stroke="#17141F" stroke-width="1.6"/>
+  </svg>`;
+}
+const CAST={
+  bin:{shirt:'#2F6FDE',hair:'#2B1D14'},
+  mai:{shirt:'#E0791B',hair:'#4A2A14',skin:'#F3C19B'},
+  khoa:{shirt:'#1F9D6B',hair:'#1A1A1A',skin:'#E9B98F'},
+  scam:{shirt:'#17141F',pants:'#3B1659',hair:'#7A1FD1',mood:'sly',hat:'#E5484D'},
+  mom:{shirt:'#C2477A',hair:'#3A2416',skin:'#F6C9A0'},
+  nam:{shirt:'#7B61FF',hair:'#2B1D14'}
+};
+const who=(k,o={})=>av(Object.assign({},CAST[k],o));
+function chat(list){return `<div class="chat">${list.map(m=>`<div class="msg ${m.c||''}">${m.n?`<div class="who">${m.n}</div>`:''}<div class="b">${m.t}</div></div>`).join('')}</div>`}
+
+const BADGE_SVG=(fill,glyph)=>`<svg viewBox="0 0 60 60"><path d="M30 3 L54 14 L54 34 Q54 50 30 57 Q6 50 6 34 L6 14Z" fill="${fill}" stroke="#17141F" stroke-width="3"/>${glyph}</svg>`;
+const GLYPH={
+  key:'<circle cx="24" cy="28" r="7" fill="none" stroke="#fff" stroke-width="4"/><path d="M30 28 H42 M38 28 V34 M42 28 V33" stroke="#fff" stroke-width="4"/>',
+  eye:'<path d="M14 30 Q30 16 46 30 Q30 44 14 30Z" fill="#fff"/><circle cx="30" cy="30" r="5" fill="#17141F"/>',
+  talk:'<rect x="15" y="18" width="30" height="20" rx="4" fill="#fff"/><path d="M22 38 L20 46 L30 38Z" fill="#fff"/>',
+  boss:'<path d="M16 38 L18 20 L25 28 L30 16 L35 28 L42 20 L44 38Z" fill="#FFE45C" stroke="#17141F" stroke-width="2"/>'
+};
+
+/* =========================================================
+   DATA
+   ========================================================= */
+const SHELVES=[
+ {name:'Kệ Không Đưa',sub:'Bảo vệ thông tin, mật khẩu, tài khoản và dấu vết số',color:'var(--s0)',hex:'#2F6FDE'},
+ {name:'Kệ Không Tin Ngay',sub:'Link giả, quà giả, giả danh, deepfake, tin sai',color:'var(--s1)',hex:'#E0791B'},
+ {name:'Kệ Khi Đã Lỡ',sub:'Bị lừa, mất tài khoản, bị bắt nạt và tìm trợ giúp',color:'var(--s2)',hex:'#1F9D6B'}
+];
+const BOOKS=[
+ {id:'chia-khoa',shelf:0,t:'Chìa Khoá Của Tớ',skill:'Giữ mật khẩu và mã OTP. Biết vì sao không ai, kể cả bạn thân hay người tự nhận là admin, được xin chìa khoá của con.',h:212,ready:true,code:'RBK-KHOA-27',level:'lv-khoa'},
+ {id:'dau-chan',shelf:0,t:'Dấu Chân Trên Mạng',skill:'Mỗi bài đăng để lại dấu vết gì, và cách chia sẻ mà không lộ nhà, lộ trường.',h:192},
+ {id:'anh-dang',shelf:0,t:'Ảnh Này Đăng Được Không?',skill:'Nhận ra những chi tiết trong ảnh có thể làm lộ thông tin cá nhân.',h:222},
+ {id:'qua-free',shelf:1,t:'Quà Miễn Phí Từ Ai?',skill:'Nhận ra link nhận quà, nhận Robux miễn phí là bẫy, và kiểm chứng bằng nguồn thay vì bằng mắt.',h:218,ready:true,code:'RBK-QUA-58',level:'lv-qua'},
+ {id:'cuoc-goi',shelf:1,t:'Cuộc Gọi Của Bà',skill:'Giọng nói và khuôn mặt có thể bị AI làm giả. Kiểm chứng bằng cách gọi lại và mật mã gia đình.',h:198},
+ {id:'tin-hot',shelf:1,t:'Tin Hot Nửa Đêm',skill:'Dừng lại trước khi tin và chia sẻ một tin gây sốc.',h:186},
+ {id:'mat-acc',shelf:2,t:'Mất Acc Rồi Làm Sao?',skill:'Bốn việc cần làm ngay khi bị chiếm tài khoản, và cách kể với bố mẹ mà không sợ.',h:214,ready:true,code:'RBK-ACC-91',level:'lv-acc'},
+ {id:'anh-ghep',shelf:2,t:'Tấm Ảnh Bị Ghép',skill:'Bị chế ảnh, bị lan trong nhóm chat: lưu bằng chứng, kể với ai, kể thế nào.',h:196},
+ {id:'ban-bi-hua',shelf:2,t:'Khi Bạn Mình Bị Hùa',skill:'Thấy bạn bị cả nhóm bắt nạt thì làm gì, kể cả khi mình chưa dám lên tiếng công khai.',h:204}
+];
+const RANKS=[['Độc Giả',0],['Người Kiểm Chứng',150],['Đội Viên',400],['Đội Trưởng',800],['Người Giữ Thư Viện',1200]];
+const BADGES=[
+ {id:'b0',name:'Người Giữ Khoá',fill:'#2F6FDE',g:'key',book:'chia-khoa',lv:'lv-khoa'},
+ {id:'b1',name:'Mắt Kiểm Chứng',fill:'#E0791B',g:'eye',book:'qua-free',lv:'lv-qua'},
+ {id:'b2',name:'Người Dám Kể',fill:'#1F9D6B',g:'talk',book:'mat-acc',lv:'lv-acc'},
+ {id:'b3',name:'Thợ Săn Boss',fill:'#5B2A86',g:'boss'}
+];
+
+/* ----- book content: 6 pages + quiz ----- */
+const CONTENT={
+'chia-khoa':{
+ pages:[
+  ()=>`<div class="cover"><span class="shelfname" style="background:#2F6FDE">Kệ Không Đưa</span><h2>Chìa Khoá Của Tớ</h2>
+     <div class="art">${who('bin',{size:120})}<div class="think">Acc này tớ cày 2 năm đấy!</div></div>
+     <p class="big">Mật khẩu và mã OTP là chìa khoá nhà của con trên mạng.</p><p class="small">6 trang, 3 câu hỏi. Đọc xong nhận mã mở màn chơi “Cày Thuê Miễn Phí”.</p></div>`,
+  ()=>`<h2>Đây là Bin.</h2><p>Bin 12 tuổi. Acc game của Bin có bộ đồ hiếm, cày suốt 2 năm.</p>
+     <div class="art">${who('scam',{size:96})}${chat([{n:'ProMax_99',t:'Acc bạn xịn ghê. Cho mình mượn chơi tí, trả liền!'}])}</div>
+     <p>Bin chưa quen ProMax_99. Nhưng bạn ấy nói chuyện rất vui.</p>`,
+  ()=>`<h2>Mật khẩu giống chìa khoá nhà.</h2><p>Đưa chìa khoá là người khác vào được nhà con, kể cả khi con không có ở đó.</p>
+     <div class="rule">Mã <b>OTP</b> là mã gồm vài con số gửi về điện thoại hoặc email. Đó là <b>chìa khoá thứ hai</b>. Có mã này, kẻ xấu đổi được luôn mật khẩu của con.</div>`,
+  ()=>`<h2>Ai hay xin chìa khoá?</h2><ul class="signs">
+     <li><b>Cày thuê</b><span>“Đưa acc đây, mình cày lên level free.”</span></li>
+     <li><b>Tặng đồ</b><span>“Đăng nhập để nhận đồ hiếm.”</span></li>
+     <li><b>Giả admin</b><span>“Admin đây, gửi mật khẩu để kiểm tra acc.”</span></li>
+     <li><b>Mượn tí</b><span>Bạn bè “mượn chơi tí rồi trả”.</span></li></ul>
+     <p class="small">Admin thật của game <b>không bao giờ</b> hỏi mật khẩu hay mã OTP.</p>`,
+  ()=>`<h2>3 luật giữ khoá</h2><ul class="olist">
+     <li>Không đưa mật khẩu cho ai, kể cả bạn thân.</li>
+     <li>Không đọc mã OTP cho ai, kể cả người tự nhận là nhân viên game.</li>
+     <li>Mỗi tài khoản một mật khẩu riêng. Mất một khoá không mất cả nhà.</li></ul>`,
+  ()=>`<h2>Bin nói không.</h2><div class="art">${who('bin',{size:96})}${chat([{n:'ProMax_99',t:'Đi mà, chỉ mượn tí thôi!'},{n:'Bin',c:'me',t:'Mật khẩu là của mình nha. Không cho mượn đâu.'}])}</div>
+     <p class="big">Từ chối không phải là xấu tính. Là biết giữ đồ của mình.</p>`
+ ],
+ quiz:[
+  {q:'Một người tự nhận là “Admin game” nhắn xin mật khẩu để “kiểm tra acc”. Con làm gì?',o:[['Gửi luôn, vì đó là admin',0],['Không gửi. Admin thật không bao giờ hỏi mật khẩu',1],['Gửi mật khẩu cũ cho chắc',0]],ok:'Chuẩn! Ai xin mật khẩu thì đó chính là dấu hiệu lừa.',no:'Admin thật không bao giờ hỏi mật khẩu. Người xin mật khẩu là đáng ngờ.'},
+  {q:'Mã OTP là gì?',o:[['Mã nhận quà tặng',0],['Chìa khoá thứ hai để vào tài khoản, không đọc cho ai',1],['Mã để kết bạn trong game',0]],ok:'Đúng! Có OTP là kẻ xấu đổi được mật khẩu của con.',no:'OTP là chìa khoá thứ hai của tài khoản. Không đọc cho bất kỳ ai.'},
+  {q:'Cách đặt mật khẩu nào an toàn hơn?',o:[['Dùng chung một mật khẩu cho mọi game',0],['Tên mình cộng ngày sinh',0],['Mỗi tài khoản một mật khẩu riêng, khó đoán',1]],ok:'Tuyệt! Mất một khoá không mất cả nhà.',no:'Dùng chung hoặc dễ đoán thì mất một là mất tất cả.'}
+ ]},
+'qua-free':{
+ pages:[
+  ()=>`<div class="cover"><span class="shelfname" style="background:#E0791B">Kệ Không Tin Ngay</span><h2>Quà Miễn Phí Từ Ai?</h2>
+     <div class="art">${who('mai',{size:120})}<div class="think">10.000 Robux miễn phí á?!</div></div>
+     <p class="big">Quà càng to, càng phải hỏi: ai gửi?</p><p class="small">6 trang, 3 câu hỏi. Đọc xong nhận mã mở màn chơi “Sự Kiện 60 Giây”.</p></div>`,
+  ()=>`<h2>Tối thứ Sáu.</h2><p>Mai đang chơi thì thấy một tin nhắn:</p>
+     <div class="art">${who('scam',{size:96})}${chat([{n:'Robux_Event_VN',t:'SỰ KIỆN: Tặng 10.000 Robux! Đăng nhập tại link trong 60 giây để nhận!'}])}</div>`,
+  ()=>`<h2>Trang web trông y hệt.</h2><p>Có logo. Có màu giống game. Có nút đăng nhập to đùng.</p>
+     <p class="big">Trông giống không có nghĩa là thật.</p><p>Làm giả một trang web chỉ mất vài phút. Nhìn bằng mắt rất khó phân biệt.</p>`,
+  ()=>`<h2>4 dấu hiệu của bẫy</h2><ul class="signs">
+     <li><b>Quá hời</b><span>Tặng khủng, miễn phí, trúng thưởng.</span></li>
+     <li><b>Hối thúc</b><span>“Trong 60 giây”, “sắp hết lượt”.</span></li>
+     <li><b>Đòi đăng nhập</b><span>Bắt nhập tài khoản để nhận quà.</span></li>
+     <li><b>Nguồn lạ</b><span>Tên người gửi lạ, địa chỉ web na ná.</span></li></ul>`,
+  ()=>`<h2>Kiểm chứng bằng nguồn, không bằng mắt.</h2><ul class="olist">
+     <li>Sự kiện thật luôn có trên <b>trang thông báo chính thức</b> của game. Mở trang đó ra xem.</li>
+     <li>Tin nhắn từ bạn thân cũng có thể là giả nếu acc bạn bị chiếm. Hỏi lại bạn bằng <b>kênh khác</b>: gặp ở lớp, gọi điện.</li></ul>`,
+  ()=>`<h2>Mai dừng 10 giây.</h2><div class="art">${who('mai',{size:96})}${chat([{n:'Mai',c:'me',t:'Link này là bẫy nha cả hội, trang chính thức không có sự kiện nào hết. Đừng bấm!'}])}</div>
+     <p>Mai báo cáo tin nhắn và cảnh báo cả hội. Không ai mất acc.</p><p class="big">Dừng 10 giây có thể cứu cả nhóm bạn.</p>`
+ ],
+ quiz:[
+  {q:'Câu nào là dấu hiệu “Hối thúc”?',o:[['“Chúc cả hội chơi vui nhé”',0],['“Đăng nhập trong 60 giây kẻo hết quà!”',1],['“Tối mai mình đánh boss nha”',0]],ok:'Đúng! Hối thúc để con không kịp suy nghĩ.',no:'Hối thúc là khi người ta ép con làm ngay lập tức.'},
+  {q:'Bạn thân nhắn: “Bấm link này nhận quà nè!”. Con làm gì?',o:[['Bấm luôn, bạn thân mà',0],['Hỏi lại bạn ấy bằng kênh khác, ví dụ gặp ở lớp',1],['Gửi link cho cả hội cùng nhận',0]],ok:'Chuẩn! Acc bạn có thể đã bị chiếm.',no:'Acc của bạn thân cũng có thể bị chiếm. Hỏi lại bằng kênh khác.'},
+  {q:'Cách kiểm chứng một sự kiện tặng quà là gì?',o:[['Bấm thử xem có gì',0],['Hỏi người gửi xem có thật không',0],['Xem trang thông báo chính thức của game',1]],ok:'Tuyệt! Nguồn chính thức mới đáng tin.',no:'Người gửi sẽ luôn nói là thật. Hãy kiểm tra ở nguồn chính thức.'}
+ ]},
+'mat-acc':{
+ pages:[
+  ()=>`<div class="cover"><span class="shelfname" style="background:#1F9D6B">Kệ Khi Đã Lỡ</span><h2>Mất Acc Rồi Làm Sao?</h2>
+     <div class="art">${who('khoa',{size:120,mood:'worried'})}<div class="think">Mật khẩu sai rồi...</div></div>
+     <p class="big">Lỡ rồi vẫn sửa được. Càng kể sớm, sửa càng nhanh.</p><p class="small">6 trang, 3 câu hỏi. Đọc xong nhận mã mở màn chơi “Sáng Thứ Bảy”.</p></div>`,
+  ()=>`<h2>Sáng thứ Bảy.</h2><p>Khoa không đăng nhập được nữa. Đồ trong acc biến mất.</p>
+     <div class="art">${who('khoa',{size:96,mood:'worried'})}<div class="think">Kể ra là bị mắng. Bị thu điện thoại. Bị bạn cười.</div></div>`,
+  ()=>`<h2>Khoa định giấu.</h2><p>Trong lúc Khoa im lặng, kẻ xấu dùng acc của Khoa nhắn cả lớp:</p>
+     ${chat([{n:'Khoa (acc bị chiếm)',c:'warn',t:'Cho tớ mượn 100 nghìn, chuyển gấp nhé, đừng nói ai!'}])}
+     <p class="big">Giấu không làm chuyện nhỏ đi. Giấu làm chuyện to ra.</p>`,
+  ()=>`<h2>4 việc cần làm ngay</h2><ul class="olist">
+     <li>Kể với một người lớn mình tin.</li>
+     <li>Báo cáo tài khoản bị chiếm qua trang hỗ trợ chính thức của game.</li>
+     <li>Đổi mật khẩu các tài khoản khác, nhất là tài khoản dùng chung mật khẩu.</li>
+     <li>Nhắn bạn bè: đừng tin tin nhắn từ acc của mình.</li></ul>`,
+  ()=>`<h2>Coi chừng cú lừa thứ hai.</h2><p>Trên mạng có nhiều “dịch vụ lấy lại acc nhanh” đòi tiền hoặc đòi thêm thông tin.</p>
+     <div class="rule">Đó thường là bẫy. <b>Chỉ dùng trang hỗ trợ chính thức.</b> Đừng nhắn cho kẻ lấy acc để xin lại.</div>`,
+  ()=>`<h2>Kể thế nào cho dễ?</h2><div class="art">${who('khoa',{size:96})}${chat([{n:'Khoa',c:'me',t:'Bố mẹ ơi, con lỡ gặp chuyện trên mạng. Con hơi sợ, bố mẹ nghe con kể hết trước được không?'},{n:'Mẹ',c:'kind',t:'Cảm ơn con đã kể. Mình cùng sửa nhé.'}])}</div>
+     <p class="small">Chưa dám nói trực tiếp? Con có thể dùng mục <b>Kể lại</b> của Robook trước.</p>`
+ ],
+ quiz:[
+  {q:'Phát hiện mất acc, việc đầu tiên nên làm là gì?',o:[['Lập acc mới và giấu đi',0],['Kể với một người lớn mình tin',1],['Nhắn cho kẻ lấy acc xin lại',0]],ok:'Đúng! Có người lớn cùng xử lý sẽ nhanh và an toàn hơn.',no:'Giấu đi hay nhắn kẻ xấu đều làm chuyện tệ hơn. Kể với người lớn trước.'},
+  {q:'Một trang quảng cáo “Lấy lại acc trong 5 phút, phí 50 nghìn”. Con nghĩ sao?',o:[['Thử luôn cho nhanh',0],['Đó thường là bẫy, chỉ dùng hỗ trợ chính thức',1],['Đưa mật khẩu mới cho họ để họ làm',0]],ok:'Chuẩn! Đừng để bị lừa lần thứ hai.',no:'Các dịch vụ kiểu này thường là cú lừa thứ hai.'},
+  {q:'Vì sao cần nhắn bạn bè ngay sau khi mất acc?',o:[['Để khoe là mình bị hack',0],['Vì kẻ xấu có thể dùng acc của mình lừa tiếp bạn bè',1],['Không cần nhắn',0]],ok:'Đúng! Một tin nhắn cảnh báo có thể cứu cả lớp.',no:'Kẻ xấu hay dùng acc bị chiếm để lừa bạn bè của nạn nhân.'}
+ ]}
+};
+
+/* ----- game levels ----- */
+const LEVELS={
+'lv-khoa':{book:'chia-khoa',name:'Cày Thuê Miễn Phí',place:'Chợ Đảo Khối',blurb:'Một người chơi lạ hứa cày level miễn phí cho con.',hero:'bin',npc:{k:'scam',n:'ProMax_99'},
+ rounds:[
+  {t:20,msgs:[{n:'ProMax_99',t:'Ê acc bạn level thấp quá. Mình cày thuê free, 1 đêm lên level 50!'},{n:'ProMax_99',t:'Gửi mình tên đăng nhập với mật khẩu nha. Chỉ còn 1 slot thôi!'}],
+   ch:[{t:'Gửi mật khẩu, lên level nhanh mà',ok:0,chain:['ProMax_99 đăng nhập và đổi mật khẩu của con.','Bộ đồ hiếm cày 2 năm bị chuyển đi.','Acc của con nhắn cho bạn bè: “Cho mượn acc tí!”'],why:'Mật khẩu là chìa khoá nhà. Không đưa cho ai, kể cả người hứa giúp.'},
+       {t:'Gửi mật khẩu cũ thôi, lát mình đổi sau',ok:0,chain:['Chỉ vài phút, ProMax_99 đổi luôn email khôi phục.','Con không còn cách nào lấy lại acc bằng email nữa.'],why:'Kẻ xấu hành động rất nhanh. “Lát đổi sau” là quá muộn.'},
+       {t:'“Mật khẩu là của mình, không gửi đâu.”',ok:1,reply:{n:'ProMax_99',t:'Thôi được. Vậy khỏi mật khẩu cũng được...'}}]},
+  {t:15,msgs:[{n:'ProMax_99',t:'Bạn chỉ cần đọc cho mình mã 6 số vừa gửi về điện thoại là xong. Nhanh lên!'}],
+   ch:[{t:'Đọc mã 6 số',ok:0,chain:['Mã OTP giúp ProMax_99 vượt qua lớp bảo vệ thứ hai.','Mật khẩu của con bị đổi ngay lập tức.'],why:'Mã OTP là chìa khoá thứ hai. Không đọc cho ai.'},
+       {t:'Hỏi lại: “Mã đó để làm gì vậy?”',ok:0,chain:['ProMax_99 bịa ra một lý do nghe rất hợp lý.','Con càng nói chuyện lâu, càng dễ bị thuyết phục.'],why:'Không cần nghe thêm lý do. Ai xin OTP là đáng ngờ, nên dừng nói chuyện.'},
+       {t:'Chặn, báo cáo người chơi này và kể với bố mẹ',ok:1,reply:{n:'Hệ thống',c:'sys',t:'Đã chặn và báo cáo ProMax_99. Acc của con an toàn.'}}]}
+ ]},
+'lv-qua':{book:'qua-free',name:'Sự Kiện 60 Giây',place:'Quảng trường Đảo Khối',blurb:'Một “sự kiện” tặng 10.000 Robux, chỉ có 60 giây để đăng nhập.',hero:'mai',npc:{k:'scam',n:'Robux_Event_VN'},
+ rounds:[
+  {t:20,msgs:[{n:'Robux_Event_VN',t:'SỰ KIỆN: Tặng 10.000 Robux cho 100 người đầu tiên!'},{n:'Robux_Event_VN',t:'Bấm link và đăng nhập trong 60 giây để nhận quà!'}],
+   ch:[{t:'Bấm link và đăng nhập ngay',ok:0,chain:['Trang web giả ghi lại tên đăng nhập và mật khẩu của con.','Acc của con bị chiếm trong vài phút.','Kẻ xấu dùng acc con gửi link đó cho cả hội.'],why:'Quá hời, hối thúc, đòi đăng nhập: đủ ba dấu hiệu bẫy.'},
+       {t:'Hỏi trong hội xem có ai nhận được chưa',ok:0,chain:['Vài bạn nói “chắc thật đó, bấm đi”.','Cả nhóm cùng bấm và cùng gặp nguy.'],why:'Bạn bè cũng chưa kiểm chứng. Hỏi nhiều người không thay được việc xem nguồn chính thức.'},
+       {t:'Mở trang thông báo chính thức của game để kiểm tra',ok:1,reply:{n:'Trang chính thức',c:'sys',t:'Không có sự kiện tặng Robux nào trong tháng này.'}}]},
+  {t:15,msgs:[{n:'Nam (bạn thân)',t:'Tớ nhận được rồi nè!! Bấm nhanh đi kẻo hết!'}],
+   ch:[{t:'Nam là bạn thân, chắc thật, bấm thôi',ok:0,chain:['Acc của Nam đã bị chiếm từ tối qua.','Tin nhắn đó do kẻ xấu gửi bằng acc của Nam.'],why:'Tin nhắn từ acc bạn thân cũng có thể là giả. Hỏi lại bằng kênh khác.'},
+       {t:'Gọi điện cho Nam để hỏi thẳng',ok:1,reply:{n:'Nam (gọi điện)',c:'kind',t:'Tớ có nhắn gì đâu! Acc tớ bị hack từ tối qua rồi.'}},
+       {t:'Gửi link cho cả hội cùng nhận',ok:0,chain:['Năm bạn trong hội bấm vào link.','Năm acc bị chiếm chỉ trong một buổi tối.'],why:'Chưa kiểm chứng thì đừng chia sẻ. Một cú bấm có thể kéo cả nhóm vào bẫy.'}]}
+ ]},
+'lv-acc':{book:'mat-acc',name:'Sáng Thứ Bảy',place:'Nhà của Khoa',blurb:'Acc đã mất. Con có ba lựa chọn khó trong một buổi sáng.',hero:'khoa',npc:{k:'mom',n:'Mẹ'},
+ rounds:[
+  {t:20,msgs:[{n:'Hệ thống',c:'sys',t:'Đăng nhập thất bại. Mật khẩu không đúng.'},{n:'Mẹ',t:'Khoa ơi, xuống ăn sáng con!'}],
+   ch:[{t:'Lập acc mới, không kể với ai',ok:0,chain:['Kẻ xấu vẫn giữ acc cũ của con.','Chúng dùng acc đó nhắn cả lớp mượn tiền.','Ba bạn bị lừa trước khi có người phát hiện.'],why:'Giấu đi cho kẻ xấu thêm thời gian. Kể sớm thì sửa sớm.'},
+       {t:'Nhắn cho kẻ lấy acc để xin lại',ok:0,chain:['Kẻ xấu đòi con gửi tiền hoặc ảnh để “trả acc”.','Con không lấy lại được acc mà còn bị dọa thêm.'],why:'Đừng thương lượng với kẻ lấy acc. Hãy tìm người lớn.'},
+       {t:'Kể với mẹ ngay: “Mẹ ơi, con cần mẹ giúp”',ok:1,reply:{n:'Mẹ',c:'kind',t:'Cảm ơn con đã kể. Mình cùng xử lý nhé.'}}]},
+  {t:20,msgs:[{n:'Mẹ',t:'Giờ mình làm gì trước đây con?'}],
+   ch:[{t:'Tìm dịch vụ “lấy lại acc nhanh” trên mạng',ok:0,chain:['Dịch vụ đòi 50 nghìn và mật khẩu email của con.','Con mất thêm tiền và mất luôn email.'],why:'Đây là cú lừa thứ hai. Chỉ dùng trang hỗ trợ chính thức.'},
+       {t:'Báo cáo qua trang hỗ trợ chính thức và đổi mật khẩu các tài khoản khác',ok:1,reply:{n:'Hệ thống',c:'sys',t:'Đã gửi yêu cầu khôi phục. Các tài khoản khác đã đổi mật khẩu.'}},
+       {t:'Đăng lên nhóm lớp chửi kẻ hack',ok:0,chain:['Kẻ hack không bị ảnh hưởng gì.','Nhóm lớp ồn ào nhưng không ai biết phải làm gì.'],why:'Bình tĩnh xử lý đúng bước quan trọng hơn trút giận.'}]},
+  {t:15,msgs:[{n:'Linh',t:'Ơ Khoa, sao acc cậu vừa nhắn mượn tiền tớ vậy?'}],
+   ch:[{t:'Im lặng vì xấu hổ',ok:0,chain:['Linh nghĩ đó là Khoa thật và chuyển tiền.','Thêm nhiều bạn nhận được tin nhắn tương tự.'],why:'Một tin cảnh báo sớm có thể cứu cả lớp.'},
+       {t:'Nhắn cả lớp: “Acc tớ bị chiếm, đừng tin tin nhắn và đừng bấm link từ acc đó”',ok:1,reply:{n:'Linh',c:'kind',t:'May quá, cảm ơn cậu! Tớ suýt chuyển tiền rồi.'}}]}
+ ]}
+};
+
+/* ----- boss of the week ----- */
+const BOSS={name:'Chuỗi Tin Nhắn Giả',week:'Tuần này',msgs:[
+ {n:'Cô chủ nhiệm',t:'Thứ Hai lớp mình nộp bài thu hoạch nhé các em.',fake:0,why:'Thông báo bình thường, không đòi gì.'},
+ {n:'Admin_Game_VN',t:'Acc bạn sắp bị khoá! Gửi mật khẩu để xác minh trong 10 phút.',fake:1,why:'Admin thật không hỏi mật khẩu. Có hối thúc.'},
+ {n:'Tuấn',t:'Tối nay 8 giờ vào game đánh boss không?',fake:0,why:'Lời rủ chơi bình thường.'},
+ {n:'Linh',t:'Cho tớ mượn 100 nghìn, chuyển gấp vào số này, đừng nói với ai nhé.',fake:1,why:'Xin tiền, gấp, bảo giữ bí mật. Acc Linh có thể đã bị chiếm.'},
+ {n:'Thông báo chính thức',t:'Máy chủ bảo trì từ 2 giờ đến 4 giờ sáng mai.',fake:0,why:'Thông báo từ nguồn chính thức, không đòi gì.'},
+ {n:'Shop_Skin_Re',t:'Skin hiếm chỉ 1 nghìn! Đăng nhập qua link để nhận ngay.',fake:1,why:'Quá hời và đòi đăng nhập qua link lạ.'}
+]};
+
+/* ----- talk channel ----- */
+const SITS=[
+ {id:'link',t:'Con lỡ bấm link lạ hoặc điền thông tin',d:'Ví dụ: đăng nhập vào trang nhận quà, điền mật khẩu',
+  steps:['Đổi mật khẩu ngay, bắt đầu từ tài khoản vừa điền.','Nếu có mã OTP gửi về mà con không yêu cầu, đừng đọc cho ai.','Kể với một người lớn mình tin để cùng kiểm tra các tài khoản khác.']},
+ {id:'acc',t:'Con bị mất tài khoản',d:'Không đăng nhập được, đồ trong acc biến mất',
+  steps:['Kể với người lớn mình tin.','Báo cáo qua trang hỗ trợ chính thức của game.','Nhắn bạn bè: đừng tin tin nhắn từ acc của con.','Không dùng dịch vụ “lấy lại acc nhanh” đòi tiền.']},
+ {id:'gia',t:'Có người giả làm con hoặc người quen',d:'Acc giả mạo, tin nhắn mượn tiền nhân danh ai đó',
+  steps:['Chụp màn hình làm bằng chứng.','Báo cáo tài khoản giả mạo trên nền tảng.','Hỏi lại người bị giả danh bằng kênh khác, ví dụ gọi điện.']},
+ {id:'bully',t:'Con bị bắt nạt hoặc bị chế ảnh',d:'Bị chửi, bị chế ảnh, bị lan trong nhóm chat',
+  steps:['Đừng trả lời lại khi đang tức giận.','Chụp màn hình, lưu lại bằng chứng.','Chặn và báo cáo người bắt nạt.','Kể với người lớn mình tin. Đây không phải lỗi của con.']},
+ {id:'friend',t:'Con thấy bạn mình gặp chuyện',d:'Bạn bị lừa, bị bắt nạt, bị hùa trong nhóm',
+  steps:['Đừng hùa theo, đừng chia sẻ tiếp nội dung xấu.','Nhắn riêng hỏi thăm bạn: “Cậu ổn không?”.','Cùng bạn kể với một người lớn đáng tin.']}
+];
+
+/* =========================================================
+   STATE
+   ========================================================= */
+const KEY='robook-v3';
+let S={xp:0,books:[],codes:[],levels:[],boss:false,quizBest:{},used:{}};
+try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&typeof s==='object')S=Object.assign(S,s)}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function addXP(n){S.xp+=n;save();renderMe()}
+function rankIdx(){let r=0;RANKS.forEach((x,i)=>{if(S.xp>=x[1])r=i});return r}
+function badgeOn(b){return b.id==='b3'?S.boss:(S.books.includes(b.book)&&S.levels.includes(b.lv))}
+function renderMe(){
+  const r=rankIdx(),nx=RANKS[r+1],lo=RANKS[r][1];
+  $('#rankName').textContent=RANKS[r][0];$('#lvlChip').textContent=r+1;
+  $('#xpBar').style.width=(nx?((S.xp-lo)/(nx[1]-lo)*100):100)+'%';
+  $('#xpTxt').textContent=nx?`${S.xp} / ${nx[1]} XP`:`${S.xp} XP`;
+}
+
+/* =========================================================
+   ROUTER
+   ========================================================= */
+let view='home';
+function go(v,arg){
+  stopTimer();closeOv();
+  view=v;document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.go===v));
+  const sky=(v==='game'||v==='play');document.body.style.background=sky?'var(--sky)':'';document.body.style.backgroundImage=sky?'none':'';
+  ({home:renderHome,read:renderReader,game:renderGame,play:renderPlay,boss:renderBoss,talk:renderTalk,parents:renderParents})[v](arg);
+  window.scrollTo(0,0);
+}
+document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
+
+/* =========================================================
+   HOME
+   ========================================================= */
+let selBook=null;
+function nextStepText(){
+  const nb=BOOKS.find(b=>b.ready&&!S.books.includes(b.id));
+  const nl=BOOKS.find(b=>b.ready&&S.books.includes(b.id)&&!S.levels.includes(b.level));
+  if(nl) return `Con đã có mã của <b>${nl.t}</b>. Vào Đảo Khối chơi màn “${LEVELS[nl.level].name}” nhé.`;
+  if(nb) return `Gợi ý tiếp theo: đọc <b>${nb.t}</b> ở ${SHELVES[nb.shelf].name}.`;
+  if(!S.boss) return `Con đã làm chủ cả 3 kệ! Thử sức với <b>Boss tuần này</b>.`;
+  return `Con đã hoàn thành mọi nội dung đang mở. Các cuốn mới sẽ sớm lên kệ.`;
+}
+function renderHome(){
+  const r=rankIdx();
+  app.innerHTML=`<div class="wrap">
+  <section class="hero">
+    <div>
+      <h1>Đọc để hiểu.<em>Chơi để làm được.</em></h1>
+      <p>Thư viện kỹ năng sống số cho trẻ 9 đến 14 tuổi. Mỗi cuốn sách dạy một kỹ năng. Đọc xong nhận mã, vào Đảo Khối thực hành trong tình huống mô phỏng.</p>
+      <div class="cta"><button class="btn" id="ctaRead">Bắt đầu đọc</button><button class="btn ghost" data-go2="talk">Con cần kể chuyện</button></div>
+      <div class="promise">Không dạy con sợ Internet. Dạy con dừng lại 10 giây trước khi điền, trước khi tin, trước khi im lặng.</div>
+    </div>
+    <div class="panel player">
+      <div class="row">${who('bin',{size:74})}<div><h3>Bạn đọc nhí</h3><div class="lv">Cấp ${r+1} · ${RANKS[r][0]} · ${S.xp} XP</div></div></div>
+      <div class="badges">${BADGES.map(b=>`<div class="badge ${badgeOn(b)?'on':''}">${BADGE_SVG(b.fill,GLYPH[b.g])}${b.name}</div>`).join('')}</div>
+      <div class="next-step">${nextStepText()}</div>
+    </div>
+  </section>
+
+  <h2 class="sec-title">Thư viện</h2>
+  <p class="sec-sub">3 kệ, 9 cuốn. Chạm vào gáy sách để xem cuốn đó dạy gì. Sách đọc xong sẽ phát sáng.</p>
+  <div id="shelves"></div>
+
+  <h2 class="sec-title">Đang diễn ra</h2>
+  <div class="side3">
+    <div class="panel card"><div class="tagline">Trò lừa tháng này</div><h3>Giả giọng người thân bằng AI</h3>
+      <p>Kẻ xấu chỉ cần vài giây giọng nói để làm giả cuộc gọi của ông bà, bố mẹ, rồi nhờ “đọc mã” hoặc “chuyển tiền gấp”.</p>
+      <button class="card-btn" id="trickBtn">Xem cách xử lý</button><div id="trickMore"></div></div>
+    <div class="panel card"><div class="tagline">Boss of the Week</div><h3>${BOSS.name}</h3>
+      <p>Cả hội cùng soi một nhóm chat có tin nhắn thật lẫn giả. Tìm đúng tin giả để hạ boss và nhận điểm hội.</p>
+      <button class="btn small" data-go2="boss">${S.boss?'Chơi lại':'Đánh boss'}</button></div>
+    <div class="panel card"><div class="tagline">Hội của con</div><h3>Hội 6A1</h3>
+      <table class="lb"><tr><td>1</td><td>Hội 7A2</td><td>1.240</td></tr><tr><td>2</td><td>Biệt Đội Không Click</td><td>1.105</td></tr><tr><td>3</td><td>Hội 6B3</td><td>980</td></tr>
+      <tr class="mine"><td>8</td><td>Hội 6A1 (con)</td><td>${420+S.xp}</td></tr></table><div class="fine">Điểm hội tăng theo XP của con. Các hội khác là số liệu minh hoạ.</div></div>
+  </div>
+
+  <h2 class="sec-title">Robook hoạt động thế nào</h2>
+  <div class="steps">
+    <div class="panel step"><div class="n">1</div><h4>Đọc một cuốn sách</h4><p>6 trang ngắn, mỗi trang một ý, có nhân vật và hội thoại. Cuối sách là 3 câu kiểm tra.</p></div>
+    <div class="panel step"><div class="n">2</div><h4>Nhận mã mở khoá</h4><p>Vượt qua bài kiểm tra là nhận mã. Nhập mã ở Đảo Khối để mở màn chơi tương ứng.</p></div>
+    <div class="panel step"><div class="n">3</div><h4>Thực hành ở Đảo Khối</h4><p>NPC dụ dỗ, đồng hồ hối thúc. Con tự quyết định. Chọn sai thì xem hậu quả và chơi lại, không bị trừ điểm.</p></div>
+  </div>
+  <footer>Robook là bản demo cho đồ án môn Quản trị thương hiệu. Robook không hỏi tên thật, ảnh hay mật khẩu của con. Tiến độ chỉ lưu trên trình duyệt đang dùng.</footer>
+  </div>`;
+  app.querySelectorAll('[data-go2]').forEach(b=>b.onclick=()=>go(b.dataset.go2));
+  $('#ctaRead').onclick=()=>{const nb=BOOKS.find(b=>b.ready&&!S.books.includes(b.id))||BOOKS[0];go('read',nb.id)};
+  $('#trickBtn').onclick=function(){$('#trickMore').innerHTML=`<ol class="trick-more"><li>Cúp máy, gọi lại vào số đã lưu từ trước.</li><li>Hỏi câu mật mã gia đình, điều chỉ người trong nhà biết.</li><li>Không đọc mã số, không chuyển tiền khi bị hối thúc.</li></ol><div class="fine">Cuốn “Cuộc Gọi Của Bà” sẽ lên kệ trong đợt cập nhật tới.</div>`;this.remove()};
+  renderShelves();
+}
+function renderShelves(){
+  $('#shelves').innerHTML=SHELVES.map((s,si)=>`<div class="shelf">
+    <div class="shelf-head"><h3>${s.name}</h3><span>${s.sub}</span></div>
+    <div class="books">${BOOKS.filter(b=>b.shelf===si).map(b=>{const d=S.books.includes(b.id);
+      return `<button class="spine ${b.ready?'':'soon'} ${d?'done':''} ${selBook===b.id?'sel':''}" style="--c:${s.color};height:${b.h}px" data-b="${b.id}" aria-label="${b.t}${b.ready?'':', sắp ra mắt'}${d?', đã đọc':''}"><span class="band"></span><span class="t">${b.t}</span><span class="st">${d?'✓':(b.ready?'▶':'🔒')}</span></button>`}).join('')}</div>
+    <div class="board"></div><div class="detail" id="det${si}"></div></div>`).join('');
+  document.querySelectorAll('.spine').forEach(el=>el.onclick=()=>{selBook=selBook===el.dataset.b?null:el.dataset.b;renderShelves()});
+  if(selBook){
+    const b=BOOKS.find(x=>x.id===selBook),d=S.books.includes(b.id),lv=b.level&&S.levels.includes(b.level);
+    $('#det'+b.shelf).innerHTML=`<div class="panel"><h4>${b.t}</h4><p>${b.skill}</p>
+      <div class="meta">${b.ready?`<span class="pill">6 trang · 3 câu hỏi</span><span class="pill y">Mở màn: ${LEVELS[b.level].name}</span>`:'<span class="pill">Sắp ra mắt</span>'}${d?'<span class="pill g">Đã đọc</span>':''}${lv?'<span class="pill g">Đã qua màn</span>':''}</div>
+      <div class="acts">${b.ready?`<button class="btn" id="readBtn">${d?'Đọc lại':'Đọc sách'}</button>${d?`<button class="btn yellow" id="playBtn">${lv?'Chơi lại màn':'Vào màn chơi'}</button>`:''}`:'<button class="btn" disabled>Sắp ra mắt</button>'}</div></div>`;
+    const rb=$('#readBtn');if(rb)rb.onclick=()=>go('read',b.id);
+    const pb=$('#playBtn');if(pb)pb.onclick=()=>{if(!S.codes.includes(b.code)){S.codes.push(b.code);save()}go('play',b.level)};
+  }
+}
+
+/* =========================================================
+   READER
+   ========================================================= */
+let R=null;
+function renderReader(id){
+  const b=BOOKS.find(x=>x.id===id),c=CONTENT[id];
+  R={b,c,i:0,ans:{},first:{}};
+  app.innerHTML=`<div class="rd" id="rd"></div><nav class="rd-nav"><div class="in"><button class="btn ghost small" id="rBack">Trước</button><div class="rd-prog"><i id="rProg"></i></div><button class="btn small" id="rNext">Lật trang</button></div></nav>`;
+  $('#rNext').onclick=()=>{if(!$('#rNext').disabled){R.i++;drawPage()}};
+  $('#rBack').onclick=()=>{if(R.i===0)go('home');else{R.i--;drawPage()}};
+  drawPage();
+}
+function drawPage(){
+  const {b,c}=R,P=c.pages.length,Q=c.quiz.length,total=P+Q+1,sh=SHELVES[b.shelf];
+  let locked=false,html='';
+  if(R.i<P){html=`<div class="crumb">${sh.name} · ${b.t}</div>`+c.pages[R.i]()}
+  else if(R.i<P+Q){
+    const qi=R.i-P,q=c.quiz[qi],done=R.ans[qi];
+    html=`<div class="crumb">${sh.name} · ${b.t}</div><div class="qhead">Kiểm tra nhanh · Câu ${qi+1}/${Q}</div><h2>${q.q}</h2>
+      <div class="choices">${q.o.map((o,i)=>`<button class="choice" data-i="${i}" ${done?'disabled':''}>${o[0]}</button>`).join('')}</div><div id="qfb">${done?`<div class="fb">${q.ok}</div>`:''}</div>`;
+    locked=!done;
+  } else html=rewardHTML();
+  $('#rd').innerHTML=`<div class="pgno">${R.i+1}</div><div class="page">${html}</div>`;
+  if(R.i>=P&&R.i<P+Q){
+    const qi=R.i-P,q=c.quiz[qi];
+    if(R.ans[qi]) document.querySelectorAll('.choice').forEach(x=>{if(q.o[x.dataset.i][1])x.classList.add('right')});
+    else document.querySelectorAll('.choice').forEach(btn=>btn.onclick=()=>{
+      const ok=q.o[btn.dataset.i][1]===1;
+      if(R.first[qi]===undefined)R.first[qi]=ok;
+      if(ok){R.ans[qi]=true;document.querySelectorAll('.choice').forEach(x=>{x.disabled=true;x.classList.remove('wrong')});btn.classList.add('right');$('#qfb').innerHTML=`<div class="fb">${q.ok}</div>`;$('#rNext').disabled=false}
+      else{btn.classList.add('wrong');btn.disabled=true;$('#qfb').innerHTML=`<div class="fb bad">${q.no} Chọn lại nhé.</div>`}
+    });
+  }
+  if(R.i===total-1) bindReward();
+  const last=R.i===total-1;
+  $('#rBack').textContent=R.i===0?'Thư viện':'Trước';
+  $('#rNext').style.visibility=last?'hidden':'visible';
+  $('#rNext').disabled=locked;
+  $('#rNext').textContent=R.i===P-1?'Làm bài kiểm tra':(R.i===P+Q-1?'Nhận thưởng':(R.i>=P?'Câu tiếp':'Lật trang'));
+  $('#rProg').style.width=(R.i/(total-1)*100)+'%';
+  window.scrollTo(0,0);
+}
+function rewardHTML(){
+  const {b,c}=R,Q=c.quiz.length,right=Object.values(R.first).filter(Boolean).length,first=!S.books.includes(b.id);
+  const gain=40+right*20;
+  if(first){S.books.push(b.id);if(!S.codes.includes(b.code))S.codes.push(b.code);S.quizBest[b.id]=right;addXP(gain)}
+  else{S.quizBest[b.id]=Math.max(S.quizBest[b.id]||0,right);save()}
+  const lv=LEVELS[b.level];
+  return `<div class="reward"><h2>Đọc xong rồi!</h2>
+    ${first?`<div class="xpgain">+${gain} XP</div>`:''}
+    <p>Con trả lời đúng ngay lần đầu <b>${right}/${Q}</b> câu.${right<Q?' Câu nào sai đã có giải thích, con đọc lại khi cần nhé.':''}</p>
+    <p class="small">Mã mở màn chơi <b>${lv.name}</b> ở Đảo Khối:</p>
+    <div class="codebox"><code>${b.code}</code><button id="copyCode">Sao chép</button></div>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><button class="btn yellow" id="toPlay">Vào màn chơi</button><button class="btn ghost" id="toLib">Về thư viện</button></div></div>`;
+}
+function bindReward(){
+  $('#copyCode').onclick=async function(){try{await navigator.clipboard.writeText(R.b.code);this.textContent='Đã chép'}catch(e){this.textContent='Chép tay nhé'}};
+  $('#toPlay').onclick=()=>go('play',R.b.level);
+  $('#toLib').onclick=()=>{selBook=R.b.id;go('home')};
+}
+
+/* =========================================================
+   GAME HUB
+   ========================================================= */
+function renderGame(){
+  app.innerHTML=`<div class="gwrap">
+   <div class="ghead"><h1>Đảo Khối</h1><p>Nơi thực hành kỹ năng đã đọc trong sách. Mỗi màn chơi mở bằng mã nhận được sau khi đọc xong một cuốn.</p></div>
+   <div class="gpanel"><div class="codein"><b>Nhập mã mở khoá:</b><input id="codeIn" placeholder="RBK-...." maxlength="14" aria-label="Mã mở khoá"><button class="btn small" id="codeGo">Mở màn</button><span id="codeMsg" class="lock-note"></span></div></div>
+   <div class="levels">${Object.entries(LEVELS).map(([id,l])=>{const b=BOOKS.find(x=>x.id===l.book),open=S.codes.includes(b.code),done=S.levels.includes(id);
+     return `<div class="lvtile ${open?'':'locked'}"><div class="pic"><div class="ground"></div><div style="position:absolute;left:24px;bottom:26px">${who(l.hero,{size:70})}</div><div style="position:absolute;right:28px;bottom:26px">${who(l.npc.k,{size:70})}</div></div>
+       <div class="body"><span class="pill" style="align-self:flex-start;background:${SHELVES[b.shelf].hex};color:#fff;border-color:var(--den)">${SHELVES[b.shelf].name}</span><h3>${l.name}</h3><p>${l.blurb}</p>
+       <div class="foot">${open?`<button class="btn small ${done?'ghost':'yellow'}" data-lv="${id}">${done?'Chơi lại':'Chơi'}</button>${done?'<span class="pill g">Đã qua</span>':''}`:`<span class="lock-note">Đọc “${b.t}” để nhận mã</span>`}</div></div></div>`}).join('')}</div>
+  </div>`;
+  document.querySelectorAll('[data-lv]').forEach(b=>b.onclick=()=>go('play',b.dataset.lv));
+  const tryCode=()=>{const v=$('#codeIn').value.trim().toUpperCase(),b=BOOKS.find(x=>x.code===v);
+    if(!b){$('#codeMsg').textContent='Mã chưa đúng. Mã có trong trang thưởng cuối mỗi cuốn sách.';return}
+    if(!S.codes.includes(v)){S.codes.push(v);save()}go('play',b.level)};
+  $('#codeGo').onclick=tryCode;$('#codeIn').onkeydown=e=>{if(e.key==='Enter')tryCode()};
+}
+
+/* =========================================================
+   GAME PLAY
+   ========================================================= */
+let G=null,timerH=null;
+function stopTimer(){clearInterval(timerH);timerH=null}
+function renderPlay(id){
+  const l=LEVELS[id];
+  G={id,l,r:0,firstTry:[],paused:false,usedPause:false,left:0,log:[]};
+  app.innerHTML=`<div class="gwrap">
+   <div class="ghead"><button class="btn small ghost" id="gBack">Đảo Khối</button><h1>${l.name}</h1></div>
+   <div class="stage">
+    <div class="scene" id="scene">
+      <div class="cloud" style="left:40px;top:44px;width:90px"></div><div class="cloud" style="right:60px;top:70px;width:120px"></div>
+      <div class="place">${l.place}</div>
+      <div class="ground"></div>
+      <div class="actor" style="left:9%"><span class="nm">Con</span><br>${who(l.hero,{size:120})}</div>
+      <div class="actor" id="npcA" style="right:9%"><span class="nm">${l.npc.n}</span><br>${who(l.npc.k,{size:120})}</div>
+      <div class="bubble r" id="bubble" style="display:none"></div>
+    </div>
+    <div class="side">
+      <div class="gpanel"><div class="timer"><span>Thời gian</span><div class="tbar" id="tbar"><i id="tfill"></i></div><span id="tnum">0</span></div>
+        <div style="margin-top:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="btn small" id="pauseBtn">Dừng 10 giây</button><span class="lock-note" id="roundLbl"></span></div></div>
+      <div class="gpanel glog" id="glog"><div class="chat" id="gchat"></div></div>
+      <div class="gchoices choices" id="gch"></div>
+    </div>
+   </div></div>`;
+  $('#gBack').onclick=()=>go('game');
+  $('#pauseBtn').onclick=openPause;
+  startRound();
+}
+function logMsg(m){G.log.push(m);$('#gchat').insertAdjacentHTML('beforeend',`<div class="msg ${m.c||''}"><div class="who">${m.n}</div><div class="b">${m.t}</div></div>`);const g=$('#glog');g.scrollTop=g.scrollHeight;
+  if(!m.c||m.c==='kind'){$('#bubble').textContent=m.t;$('#bubble').style.display='block'}}
+function startRound(){
+  const rd=G.l.rounds[G.r];
+  $('#roundLbl').textContent=`Lượt ${G.r+1}/${G.l.rounds.length}`;
+  rd.msgs.forEach((m,i)=>setTimeout(()=>{if(view==='play')logMsg(m)},i*600));
+  setTimeout(()=>{if(view!=='play')return;drawChoices();runTimer(rd.t)},rd.msgs.length*600);
+}
+function drawChoices(){
+  const rd=G.l.rounds[G.r];
+  $('#gch').innerHTML=rd.ch.map((c,i)=>`<button class="choice" data-c="${i}">${c.t}</button>`).join('');
+  document.querySelectorAll('#gch .choice').forEach(b=>b.onclick=()=>pick(+b.dataset.c));
+}
+function runTimer(sec){
+  stopTimer();G.left=sec;G.total=sec;G.expired=false;updT();
+  timerH=setInterval(()=>{if(G.paused)return;G.left--;updT();
+    if(G.left<=0){stopTimer();G.expired=true;
+      logMsg({n:'Robook',c:'sys',t:'Hết giờ rồi? Không sao cả. Đồng hồ đếm ngược chỉ để con vội. Cứ bình tĩnh chọn.'});
+      setTimeout(()=>{if(view==='play'&&G.l.npc.k==='scam')logMsg({n:G.l.npc.n,t:'Mình gia hạn thêm cho bạn 5 phút nữa nè, nhanh lên nha!'})},700);
+    }},1000);
+}
+function updT(){$('#tnum').textContent=Math.max(0,G.left)+'s';$('#tfill').style.width=(Math.max(0,G.left)/G.total*100)+'%'}
+function pick(i){
+  const rd=G.l.rounds[G.r],c=rd.ch[i];
+  if(G.firstTry[G.r]===undefined)G.firstTry[G.r]=!!c.ok;
+  if(!c.ok){
+    stopTimer();
+    $('#npcA').classList.remove('shake');void $('#npcA').offsetWidth;$('#npcA').classList.add('shake');
+    showOv(`<h3>Chuyện gì xảy ra tiếp...</h3><ul class="chain">${c.chain.map(x=>`<li>${x}</li>`).join('')}</ul><div class="why"><b>Vì sao không an toàn:</b> ${c.why}</div><p>Đây chỉ là mô phỏng, chưa có gì mất thật. Con thử lại lượt này nhé.</p><button class="btn" id="retry">Thử lại lượt này</button>`);
+    $('#retry').onclick=()=>{closeOv();document.querySelector(`#gch [data-c="${i}"]`).disabled=true;runTimer(rd.t)};
+    return;
+  }
+  stopTimer();
+  document.querySelectorAll('#gch .choice').forEach(b=>b.disabled=true);
+  document.querySelector(`#gch [data-c="${i}"]`).classList.add('right');
+  logMsg({n:'Con',c:'me',t:c.t.replace(/^“|”$/g,'')});
+  setTimeout(()=>{logMsg(c.reply);
+    const last=G.r===G.l.rounds.length-1;
+    $('#gch').insertAdjacentHTML('beforeend',`<button class="btn yellow" id="nextR">${last?'Hoàn thành màn':'Lượt tiếp theo'}</button>`);
+    $('#nextR').onclick=()=>{if(last)winLevel();else{G.r++;$('#gch').innerHTML='';startRound()}};
+  },500);
+}
+function openPause(){
+  if(G.paused)return;G.paused=true;$('#tbar').classList.add('paused');
+  const qs=['Ai đang muốn mình làm gì?','Sao lại gấp thế?','Mình kiểm chứng bằng cách nào?'];
+  showOv(`<h3>Dừng 10 giây</h3><div class="pausering"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="none" stroke="#DCE8F6" stroke-width="9"/><circle id="parc" cx="50" cy="50" r="44" fill="none" stroke="#5B2A86" stroke-width="9" stroke-dasharray="276.5" stroke-dashoffset="0"/></svg><span id="pnum">10</span></div><div class="pq" id="pq">${qs[0]}</div><div style="text-align:center"><button class="btn" id="pDone" disabled>Quay lại</button></div>`);
+  let s=10;const h=setInterval(()=>{s--;$('#pnum').textContent=s;$('#parc').style.strokeDashoffset=276.5*(1-s/10);
+    if(s===7)$('#pq').textContent=qs[1];if(s===4)$('#pq').textContent=qs[2];
+    if(s<=0){clearInterval(h);$('#pq').textContent='Đầu đã bắt kịp tay. Giờ chọn nhé!';$('#pDone').disabled=false;G.usedPause=true}},1000);
+  G.pauseH=h;
+  $('#pDone').onclick=()=>{closeOv();G.paused=false;$('#tbar').classList.remove('paused')};
+}
+function winLevel(){
+  const l=G.l,first=!S.levels.includes(G.id),good=G.firstTry.filter(Boolean).length;
+  const gain=60+good*20+(G.usedPause?20:0);
+  if(first){S.levels.push(G.id);addXP(gain)}
+  const b=BOOKS.find(x=>x.id===l.book),bd=BADGES.find(x=>x.book===l.book),got=badgeOn(bd);
+  showOv(`<div class="win">${got?`<svg class="bigbadge" viewBox="0 0 60 60">${BADGE_SVG(bd.fill,GLYPH[bd.g]).replace(/<\/?svg[^>]*>/g,'')}</svg>`:''}
+    <h3>Qua màn “${l.name}”!</h3>${first?`<div class="xpgain">+${gain} XP</div>`:''}
+    <p>Chọn đúng ngay lần đầu: <b>${good}/${l.rounds.length}</b> lượt.${G.usedPause?' Thưởng thêm vì con đã dùng “Dừng 10 giây”.':''}</p>
+    ${got?`<p>Con nhận huy hiệu <b>${bd.name}</b> vì đã làm chủ ${SHELVES[b.shelf].name}.</p>`:''}
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><button class="btn yellow" id="wHub">Về Đảo Khối</button><button class="btn ghost" id="wLib">Về thư viện</button></div></div>`);
+  $('#wHub').onclick=()=>go('game');$('#wLib').onclick=()=>go('home');
+}
+function showOv(h){$('#ovBody').innerHTML=h;$('#ov').classList.add('show');const f=$('#ovBody').querySelector('button:not([disabled])');if(f)f.focus()}
+function closeOv(){$('#ov').classList.remove('show');if(G&&G.pauseH)clearInterval(G.pauseH)}
+
+/* =========================================================
+   BOSS
+   ========================================================= */
+function renderBoss(){
+  const flagged=new Set();
+  app.innerHTML=`<div class="narrow">
+   <h1>Boss of the Week: ${BOSS.name}</h1>
+   <p class="lead">Đây là nhóm chat của Hội 6A1. Có <b>3 tin nhắn giả</b> trộn giữa tin thật. Chạm vào tin con cho là giả để đánh dấu, rồi bấm Tấn công.</p>
+   <div class="boss-hp"><b>Máu boss</b><div class="tbar" style="max-width:340px"><i id="bossHp" style="width:100%"></i></div></div>
+   <div class="panel"><div class="chat boss-chat" id="bchat">${BOSS.msgs.map((m,i)=>`<div class="msg" data-m="${i}" tabindex="0" role="button" aria-pressed="false"><div class="who">${m.n}</div><div class="b">${m.t}</div></div>`).join('')}</div></div>
+   <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap"><button class="btn" id="attack">Tấn công</button><button class="btn ghost" id="bReset">Làm lại</button></div>
+   <div id="bres" style="margin-top:16px"></div></div>`;
+  document.querySelectorAll('#bchat .msg').forEach(el=>{const t=()=>{if(el.dataset.lock)return;const i=+el.dataset.m;flagged.has(i)?flagged.delete(i):flagged.add(i);el.classList.toggle('flagged');el.setAttribute('aria-pressed',flagged.has(i))};
+    el.onclick=t;el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();t()}}});
+  $('#bReset').onclick=renderBoss;
+  $('#attack').onclick=function(){
+    let right=0;
+    BOSS.msgs.forEach((m,i)=>{const el=document.querySelector(`[data-m="${i}"]`),ok=(flagged.has(i)===!!m.fake);if(ok)right++;
+      el.dataset.lock=1;el.classList.add(ok?'res-ok':'res-bad');el.insertAdjacentHTML('beforeend',`<div class="note"><b>${m.fake?'Tin giả':'Tin thật'}.</b> ${m.why}</div>`)});
+    $('#bossHp').style.width=(100-right/BOSS.msgs.length*100)+'%';
+    const win=right>=5,first=win&&!S.boss;
+    if(first){S.boss=true;addXP(right*10)}
+    this.disabled=true;
+    $('#bres').innerHTML=`<div class="fb ${win?'':'bad'}">${win?`Hạ boss! Con soi đúng ${right}/6 tin.${first?` Nhận <b>+${right*10} XP</b> cho hội và huy hiệu <b>Thợ Săn Boss</b>.`:''}`:`Con soi đúng ${right}/6 tin. Boss còn máu! Đọc giải thích bên trên rồi bấm Làm lại nhé.`}</div>`;
+  };
+}
+
+/* =========================================================
+   TALK (Kênh kể lại an toàn)
+   ========================================================= */
+function renderTalk(){
+  app.innerHTML=`<div class="narrow">
+   <h1>Kể lại</h1>
+   <p class="safe-msg">Bạn không gặp rắc rối khi kể ra. Chúng ta sẽ cùng tìm cách giải quyết.</p>
+   <div class="panel" id="talkBox"></div>
+   <p class="priv">Robook không lưu những gì con chọn ở đây. Báo cáo gửi phụ huynh không hiển thị nội dung này.</p></div>`;
+  talkStep1();
+}
+function talkStep1(){
+  $('#talkBox').innerHTML=`<div class="talkstep">Bước 1/3</div><h2 style="margin:0 0 12px;font-size:24px">Chuyện gì đã xảy ra?</h2>
+   <div class="sitgrid">${SITS.map(s=>`<button class="sit" data-s="${s.id}"><b>${s.t}</b>${s.d}</button>`).join('')}</div>`;
+  document.querySelectorAll('.sit').forEach(b=>b.onclick=()=>talkStep2(SITS.find(s=>s.id===b.dataset.s)));
+}
+function talkStep2(s){
+  const a={};
+  $('#talkBox').innerHTML=`<div class="talkstep">Bước 2/3</div><h2 style="margin:0 0 6px;font-size:24px">${s.t}</h2><p style="margin:0 0 14px;color:var(--muted)">Trả lời 2 câu ngắn để Robook gợi ý đúng hơn.</p>
+   <b>Chuyện xảy ra khi nào?</b><div class="choices" id="qa1"><button class="choice" data-v="now">Vừa xong</button><button class="choice" data-v="day">Hôm qua hoặc vài hôm trước</button><button class="choice" data-v="long">Lâu rồi</button></div>
+   <b>Đã có người lớn nào biết chưa?</b><div class="choices" id="qa2"><button class="choice" data-v="no">Chưa ai biết</button><button class="choice" data-v="yes">Có người lớn biết rồi</button></div>
+   <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn ghost small" id="tBack">Quay lại</button><button class="btn" id="tNext" disabled>Xem cách xử lý</button></div>`;
+  ['qa1','qa2'].forEach(k=>document.querySelectorAll(`#${k} .choice`).forEach(b=>b.onclick=()=>{document.querySelectorAll(`#${k} .choice`).forEach(x=>x.classList.remove('picked'));b.classList.add('picked');a[k]=b.dataset.v;$('#tNext').disabled=!(a.qa1&&a.qa2)}));
+  $('#tBack').onclick=talkStep1;$('#tNext').onclick=()=>talkStep3(s,a);
+}
+function talkStep3(s,a){
+  $('#talkBox').innerHTML=`<div class="talkstep">Bước 3/3</div><h2 style="margin:0 0 12px;font-size:24px">Mình làm thế này nhé</h2>
+   ${a.qa1==='now'?'<div class="fb">Con kể rất kịp thời. Xử lý càng sớm, càng ít thiệt hại.</div>':'<div class="fb">Dù đã qua một thời gian, kể ra bây giờ vẫn giúp được rất nhiều.</div>'}
+   <ul class="olist" style="margin-top:14px">${s.steps.map(x=>`<li style="font-size:17px">${x}</li>`).join('')}</ul>
+   ${a.qa2==='no'?`<h3 style="margin:18px 0 8px;font-size:19px">Kể với người lớn thế nào?</h3><p style="margin:0 0 6px">Chọn một người con tin: bố, mẹ, ông bà, anh chị, thầy cô. Con có thể mở lời thế này:</p>${chat([{n:'Con',c:'me',t:'Con lỡ gặp chuyện trên mạng. Con hơi sợ, mình nghe con kể hết trước được không?'}])}`:'<div class="fb">Tốt lắm! Có người lớn cùng xử lý thì con không phải lo một mình.</div>'}
+   <div class="hotline"><div class="num">111</div><p><b>Tổng đài quốc gia bảo vệ trẻ em.</b> Gọi miễn phí, hoạt động cả ngày lẫn đêm. Dùng khi con bị đe dọa, bị bắt nạt nghiêm trọng, hoặc không biết kể với ai.</p></div>
+   <button class="btn ghost small" id="tAgain">Kể chuyện khác</button>`;
+  $('#tAgain').onclick=talkStep1;
+}
+
+/* =========================================================
+   PARENTS
+   ========================================================= */
+function renderParents(){
+  const rows=SHELVES.map((s,si)=>{
+    const b=BOOKS.find(x=>x.shelf===si&&x.ready),read=S.books.includes(b.id),lv=S.levels.includes(b.level),q=S.quizBest[b.id]||0;
+    let st,txt;
+    if(read&&lv){st='<span class="st ok">Đã làm chủ</span>';txt={0:'Con đã từ chối đưa mật khẩu và mã OTP trong tình huống mô phỏng có người hứa “cày thuê miễn phí”.',1:'Con đã kiểm tra nguồn chính thức thay vì bấm link nhận quà, và hỏi lại bạn bằng kênh khác khi acc bạn có dấu hiệu bị chiếm.',2:'Con đã chọn kể với người lớn khi mất acc, tránh dịch vụ lấy lại acc lừa đảo và cảnh báo bạn bè.'}[si]}
+    else if(read){st='<span class="st mid">Đang học</span>';txt=`Con đã đọc “${b.t}” (đúng ${q}/3 câu ngay lần đầu). Bước tiếp theo là thực hành ở màn chơi tương ứng.`}
+    else{st='<span class="st">Chưa bắt đầu</span>';txt=`Con chưa đọc cuốn “${b.t}”.`}
+    return `<tr><td><b>${s.name.replace('Kệ ','')}</b><br><span style="color:var(--muted);font-size:13px">${s.sub}</span></td><td>${st}</td><td>${txt}</td></tr>`}).join('');
+  app.innerHTML=`<div class="narrow">
+   <h1>Dành cho phụ huynh</h1>
+   <p class="lead">Robook trang bị cho con những kỹ năng mà chính chúng ta chưa từng được dạy khi lớn lên. Trang này giúp anh chị theo dõi con đã làm được gì, và đồng hành đúng cách khi con gặp sự cố.</p>
+   <h2 class="h2s">Báo cáo kỹ năng của con</h2>
+   <table class="rep"><tr><th>Nhóm kỹ năng</th><th>Mức độ</th><th>Nhận xét</th></tr>${rows}</table>
+   <p class="priv">Báo cáo chỉ thể hiện kết quả học tập. Những gì con chia sẻ trong mục Kể lại không được lưu và không hiển thị ở đây.</p>
+   <h2 class="h2s">Bộ hướng dẫn đồng hành</h2>
+   <ol class="guide">
+    <li><div><b>Khi con kể: cảm ơn trước, sửa sau.</b>Câu đầu tiên con cần nghe là “Cảm ơn con đã kể với bố mẹ”. Trách mắng ngay lúc đó khiến lần sau con chọn im lặng.</div></li>
+    <li><div><b>Không tịch thu điện thoại vì con đã nói thật.</b>Nếu nói thật bị phạt, con sẽ học cách giấu. Hãy tách chuyện xử lý sự cố khỏi chuyện kỷ luật.</div></li>
+    <li><div><b>Đặt một câu mật mã gia đình.</b>Một câu hỏi chỉ người trong nhà biết, dùng để xác minh khi có cuộc gọi hoặc tin nhắn đáng ngờ nhân danh người thân.</div></li>
+    <li><div><b>Hướng dẫn con lưu bằng chứng.</b>Chụp màn hình tin nhắn, tên tài khoản, đường link trước khi chặn hoặc báo cáo.</div></li>
+    <li><div><b>Biết nơi tìm trợ giúp.</b>Trang hỗ trợ chính thức của từng game, và Tổng đài quốc gia bảo vệ trẻ em 111 (miễn phí, 24/7) khi cần hỗ trợ bảo vệ trẻ.</div></li>
+   </ol>
+   <h2 class="h2s">Cam kết bảo vệ dữ liệu</h2>
+   <ul class="promise-list">
+    <li>Con dùng nickname. Robook không hỏi tên thật, ảnh, số điện thoại hay trường học.</li>
+    <li>Không bao giờ yêu cầu mật khẩu thật. Mọi tình huống nhập thông tin đều là mô phỏng.</li>
+    <li>Chỉ thu thập dữ liệu cần cho việc học, và nói rõ mục đích sử dụng.</li>
+    <li>Dữ liệu tiến độ học tập tách biệt hoàn toàn với nội dung con chia sẻ trong mục Kể lại.</li>
+    <li>Nội dung được rà soát và cập nhật định kỳ qua chuyên mục “Trò lừa tháng này”.</li>
+   </ul></div>`;
+}
+
+/* ========================================================= */
+$('#ov').onclick=e=>{if(e.target.id==='ov'&&!$('#ovBody').querySelector('#pDone'))closeOv()};
+renderMe();go('home');
+</script>
+</body>
+</html>
